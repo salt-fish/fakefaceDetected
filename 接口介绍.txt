@@ -1,0 +1,33 @@
+接口与之前版本基本没有变化，提供人脸检测，鉴别和识别功能
+
+文件夹结构
+
+face_db 用于存放人脸识别的人脸数据库
+models 用于存放预训练模型
+network 用于存放Mose网络的网络结构
+static flask自带前端静态文件目录（废弃）
+templates flask自带前端文件（废弃）
+upload 存放上传的图片，适用于接口upload_*，如果只做检测而不存储则不使用
+model.py 胶囊网络网络结构
+run_pytorch_server.py 后端服务启动文件，默认接口5000
+
+模型添加方法
+
+1. 将训练好的模型放入models文件夹中
+2. 将模型所对应的网络结构放入根目录下，若为单个文件则直接放入根目录（如model.py)，若为多个文件则放入一个文件夹后再放入（如network）
+3. 在run_pytorch_server.py中import添加的网络结构，申明全局的网络名称，并在load_model方法中加载模型
+4. 新的模型调用接口参考identify_meso()编写
+
+模型调用方法
+
+入参： 目前接收的是名为photo的数据 flask.request.files['photo']
+返回： 成功时返回状态码（success：True），为真的概率（prediction），检测用时（time）
+           失败时返回状态码（success：False），信息（msg）
+
+已有接口
+
+upload_* 用于上传并存储图片，根据调用接口将df、f2f等图片存储到相应的文件夹中，并选择相应的鉴别方法predict_*
+detection 用于检测是否包含人脸
+identify_* 用于直接检测上传的图片，根据接口不同使用不同的模型
+recognition 用于人脸识别
+upload_identify 调用predict_df，入参为表单，dataType=file则上传图片，返回为真的概率和用时，dataType=file则上传url="链接地址"，返回为真的概率和用时
